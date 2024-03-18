@@ -1,7 +1,11 @@
 ﻿using EmployeeManager.Data;
 using EmployeeManager.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace EmployeeManager
 {
@@ -16,34 +20,53 @@ namespace EmployeeManager
             return instance;
         }
 
-        public string getEmployee(string[] args)
+        public void getEmployee(Dictionary<string, string> parameters)
         {
             using (DbContext context = new uvsprojectContext())
             {
-                (string field, string value) = parseParameter(args, 1);
-                int id = int.Parse(value);
-                Employee? employee = context.FindAsync<Employee>(id).Result;
+                try
+                {
+                    int id = int.Parse(parameters.GetValueOrDefault("--employeeId") 
+                        ?? throw new Exception("Incorrect employeeId"));
+                    Employee employee = context.FindAsync<Employee>(id).Result
+                        ?? throw new Exception("Could not retrieve employee with id " + id);
 
-                if (employee == null) { 
-                    throw new Exception(("Could not retrieve employee with id " + value));
+                    Console.WriteLine(employee.ToString());
+
                 }
-
-                return employee.Employeename + " " + employee.Employeesalary;
+                catch (KeyNotFoundException e)
+                {
+                    Console.WriteLine("Parameter {0} missing", e);
+                }
             }
         }
 
-        public void setEmployee(string[] args)
+        public void setEmployee(Dictionary<string, string> parameters)
         {
             using (DbContext context = new uvsprojectContext())
             {
+                try
+                {
+                    int id = int.Parse(parameters.GetValueOrDefault("--employeeId")
+                        ?? throw new Exception("Incorrect employeeId"));
+                    string name = parameters.GetValueOrDefault("--employeeName")
+                        ?? throw new Exception("Incorrect employeeName");
+                    int salary = int.Parse(parameters.GetValueOrDefault("--employeeSalary")
+                        ?? throw new Exception("Incorrect employeeSalary"));
 
+                    Employee employee = new Employee();
+                    employee.Employeeid = id;
+                    employee.Employeename = name;
+                    employee.Employeesalary = salary;
+
+                    context.Add(employee);
+                    context.SaveChanges();
+                }
+                catch (KeyNotFoundException e)
+                {
+                    Console.WriteLine("Parameter {0} missing", e);
+                }
             }
         }
-
-        private (string, string) parseParameter(string[] args, int index)
-        {
-            switch (args[index]) { }
-        }
-
     }
 }
