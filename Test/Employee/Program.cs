@@ -14,7 +14,7 @@ namespace EmployeeManager
             {
                 case "get-employee":
                     arguments = parseArguments(args.Where(s => s != "get-employee").ToArray());
-                    EmployeeManager.GetInstance().setEmployee(arguments);
+                    EmployeeManager.GetInstance().getEmployee(arguments);
                     break;
                 case "set-employee": 
                     arguments = parseArguments(args.Where(s => s != "set-employee").ToArray());
