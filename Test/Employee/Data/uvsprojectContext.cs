@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using EmployeeManager.Models;
+using System;
 
 namespace EmployeeManager.Data
 {
@@ -20,7 +21,10 @@ namespace EmployeeManager.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql("Name=ConnectionStrings:Main");
+                string connectionStr = Environment.GetEnvironmentVariable("connectionString")
+                    ?? throw new Exception("You need to set the connection string before running the program");
+
+                optionsBuilder.UseNpgsql(connectionStr);
             }
         }
 
@@ -28,7 +32,7 @@ namespace EmployeeManager.Data
         {
             modelBuilder.Entity<Employee>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Employeeid);
 
                 entity.ToTable("employees");
 
