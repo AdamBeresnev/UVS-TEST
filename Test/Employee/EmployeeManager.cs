@@ -27,16 +27,19 @@ namespace EmployeeManager
                 try
                 {
                     int id = int.Parse(parameters.GetValueOrDefault("--employeeId") 
-                        ?? throw new Exception("Incorrect employeeId"));
+                        ?? throw new KeyNotFoundException("--employeeId"));
                     Employee employee = context.FindAsync<Employee>(id).Result
-                        ?? throw new Exception("Could not retrieve employee with id " + id);
+                        ?? throw new InvalidOperationException("Could not retrieve employee with id " + id);
 
                     Console.WriteLine(employee.ToString());
-
                 }
                 catch (KeyNotFoundException e)
                 {
-                    Console.WriteLine("Parameter {0} missing", e);
+                    Console.WriteLine("Parameter {0} missing", e.Message);
+                }
+                catch (InvalidOperationException e)
+                {
+                    Console.WriteLine(e.Message);
                 }
             }
         }
@@ -48,11 +51,11 @@ namespace EmployeeManager
                 try
                 {
                     int id = int.Parse(parameters.GetValueOrDefault("--employeeId")
-                        ?? throw new Exception("Incorrect employeeId"));
+                        ?? throw new KeyNotFoundException("--employeeId"));
                     string name = parameters.GetValueOrDefault("--employeeName")
-                        ?? throw new Exception("Incorrect employeeName");
+                        ?? throw new KeyNotFoundException("--employeeName");
                     int salary = int.Parse(parameters.GetValueOrDefault("--employeeSalary")
-                        ?? throw new Exception("Incorrect employeeSalary"));
+                        ?? throw new KeyNotFoundException("--employeeSalary"));
 
                     Employee employee = new Employee();
                     employee.Employeeid = id;
@@ -64,7 +67,7 @@ namespace EmployeeManager
                 }
                 catch (KeyNotFoundException e)
                 {
-                    Console.WriteLine("Parameter {0} missing", e);
+                    Console.WriteLine("Parameter {0} missing", e.Message);
                 }
             }
         }
